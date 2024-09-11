@@ -985,11 +985,53 @@ write(cls_content, file = "GSEA/phenotype_CCC.cls")
 
 ### Manage results
 ```{r}
+########################################
+# Function to manage GSEA results data #
+########################################
+sortGSEAdata <- function (gseaD, collection, phenotype, comparison) {
+  gseaD <- gseaD[, -c(2:3, 10:12)]
+  gseaD$COLLECTION <- rep(collection, nrow(gseaD))
+  gseaD <- gseaD[, c(ncol(gseaD), 1:(ncol(gseaD)-1))]
+  colnames(gseaD)[6:8] <- c("NOM_pval", "FDR_qval", "FWER_pval")
+  gseaD[, "-Log10FDR"] <- -log10(gseaD$FDR_qval)
+  gseaD$PHENOTYPE <- rep(phenotype, nrow(gseaD))
+  gseaD$COMPARISON <- rep(comparison, nrow(gseaD))
+  
+  return(gseaD)
+}
 
+## Example: retrieve results from GSEA run in Hallmarks Collection in the M vs T comparion
+M_T_gsea <- sortGSEAdata(data.frame(read.csv("GSEA/H/gsea_report_T.tsv", sep = "\t")),
+                         collection = "H",
+                         phenotype = "Metastasis",
+                         comparison = "M_vs_T")
 ```
 
 ### Balloon plots
 ```{r}
+balloon_data <- M_T_gsea[M_T_gsea$FDR_qval < 0.25, ]
 
+ggplot(balloon_data, aes(x = COMPARISON, y = NAME, color = NES, size = `-Log10FDR`)) +
+  geom_point() +
+  #scale_size_continuous(range = c(0, 1.5), breaks = c(0, 0.5, 1, 1.5)) +  # Adjust the circle size
+  scale_color_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0, na.value = "gray90") +
+  facet_grid(COLLECTION ~ COMPARISON, space = "free", scales = "free") +
+  theme_classic() +
+  theme(
+    axis.text.x = element_blank(),#element_text(angle = 30, hjust = 1),
+    strip.background = element_rect(fill = "gray90", colour = "white", linewidth = 1),
+    strip.text.x = element_text(face = "bold", size = 10),
+    strip.text.y = element_text(face = "bold", size = 10, angle = 90, hjust = 0.5),
+    panel.spacing = unit(0.5, "lines"),
+    panel.grid.major = element_line(linewidth = 0.2, linetype = 'solid', color = "grey90"),
+    panel.grid.minor = element_blank(),
+    axis.title.x = element_blank(), #element_text(face = "bold"),
+    axis.title.y = element_text(face = "bold")
+  ) +
+  labs(size = "-Log10FDR", color = "NES", y = "PATHWAYS", x = "PHENOTYPE") +
+  guides(size = guide_legend(override.aes = list(shape = 21, fill = "white", color = "black")))
+
+# Save the revised Balloon Plot
+ggsave("GSEA/H_(qval<0.25).jpg", height = 13, width = 10, dpi = 600, limitsize = FALSE)
 ```
 
