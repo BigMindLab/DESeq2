@@ -391,6 +391,16 @@ ggsave(paste0("plots/dim_reduction/Umap_n", umap_data$config$n_neighbors, "_",
 ggsave(paste0("plots/dim_reduction/Umap_n", umap_data$config$n_neighbors, "_",
               umap_data$config$n_components, "D", ".svg"),
        p.umap, width = 6, height = 5.5, dpi = 600)
+
+p.umap <- nice_UMAP(object = transf.data, neighbors = 4, components = 3, epochs = 20000,
+                    returnData = FALSE,
+                    variables = c("group", "sex"), colors = my_colors,
+                    shapes = 21:22, size = 9, alpha = 1,
+                    legend_names = c("Group", "Sex"),
+                    legend_title = 10, legend_elements = 8, legend_pos = NULL,
+                    #name_tags = c(var = "id", size = 2, minlen = 2, box = 0.6),
+                    labels = c(var = "num", size = 3))
+p.umap
 ```
 
 ### Heatmap samples vs samples
