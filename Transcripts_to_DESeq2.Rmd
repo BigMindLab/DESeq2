@@ -93,7 +93,7 @@ require(knitr)
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = "./")
 sample_data <- "samples_data.xlsx" # File of the samples' metadata
-counts_dir <- "./Counts_Salmon" # Indicate directory where .sf files are stored
+counts_dir <- "./Counts" # Indicate directory where quantification files are stored
 ```
 
 
@@ -109,12 +109,21 @@ rownames(sampledata) <- sampledata$id
 sampledata$num <- 1:nrow(sampledata)
 ```
 
-## Managing Salmon count files
+## Managing quantification files
 ```{r}
+# Salmon .sf files
 count_files <- file.path(counts_dir, paste0(sampledata$id, "_quant.sf"))
 names(count_files) <- sampledata$id
 
 txi <- tximport(count_files, type="salmon", txOut=TRUE, countsFromAbundance="no")
+
+# Kallisto .tsv files
+count_files <- file.path(counts_dir, paste0(sampledata$id, "_abundance.tsv"))
+names(count_files) <- sampledata$id
+
+txi <- tximport(count_files, type="kallisto", txOut=TRUE, countsFromAbundance="no")
+
+# Filtering out null counts
 counts.tx <- txi$counts
 counts.tx <- counts.tx[rowSums(counts.tx) > 0,]
 
