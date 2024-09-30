@@ -49,7 +49,7 @@ This guide provides a comprehensive methodology for performing Differential Expr
 	- Manage results from Gene Set Enrichment Analysis (GSEA) results' data frames
 	- Create balloon plots and concurrency networks of gene sets/pathways
 
-### Requierements
+### Requirements
 
 To run the analysis script, the following input files are required:
 
